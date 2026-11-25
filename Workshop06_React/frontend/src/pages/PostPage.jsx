@@ -17,7 +17,7 @@ function PostPage() {
         setLoading(true)
         setError(null)
         
-        const response = await fetch(`http://localhost:3000/api/posts/${id}`)
+        const response = await fetch(`https://laurea-web-development-2-2.onrender.com/api/posts/${id}`)
         
         if (!response.ok) {
           if (response.status === 404) throw new Error('Post not found')
@@ -47,7 +47,7 @@ function PostPage() {
       setDeleting(true)
       setError(null)
 
-      const response = await fetch(`http://localhost:3000/api/posts/${id}`, {
+      const response = await fetch(`https://laurea-web-development-2-2.onrender.com/api/posts/${id}`, {
         method: 'DELETE',
       })
 

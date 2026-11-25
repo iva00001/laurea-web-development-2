@@ -19,7 +19,7 @@ function NewPostPage() {
       const newPostData = Object.fromEntries(formData.entries())
 
       // 2. POST JSON body to /api/posts
-      const response = await fetch('http://localhost:3000/api/posts', {
+      const response = await fetch('https://laurea-web-development-2-2.onrender.com/api/posts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

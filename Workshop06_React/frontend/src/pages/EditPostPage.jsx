@@ -18,7 +18,7 @@ function EditPostPage() {
         setLoading(true)
         setError(null)
         
-        const response = await fetch(`http://localhost:3000/api/posts/${id}`)
+        const response = await fetch(`https://laurea-web-development-2-2.onrender.com/api/posts/${id}`)
         if (!response.ok) {
           throw new Error('Failed to fetch post')
         }
