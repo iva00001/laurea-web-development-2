@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 
-const Post = require('../models/Post');
+const Post = require('../models/Post.js');
 
 const router = express.Router();
 
@@ -50,33 +50,42 @@ router.get('/:id', async (req, res) => {
 });
 
 router.put('/:id', async (req, res) => {
-  // TODO (student): Implement UPDATE operation for one post.
-  // Suggested steps:
-  // 1) Keep ObjectId validation for req.params.id.
-  // 2) Update the post with req.body using Post.findByIdAndUpdate().
-  // 3) Use { new: true, runValidators: true } so validation runs and the updated doc is returned.
-  // 4) Return 404 if no post exists with this id.
-  // 5) Return 400 for validation errors and 500 for other server errors.
-  if (!isValidObjectId(req.params.id)) {
+    if (!isValidObjectId(req.params.id)) {
     return res.status(400).json({ error: 'Invalid post id' });
   }
 
-  return res.status(501).json({ message: 'TODO: implement PUT /api/posts/:id' });
+  try {
+    const updatedPost = await Post.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    if (!updatedPost) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+    return res.status(200).json(updatedPost);
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ error: err.message });
+    }return res.status(500).json({ error: 'Server error' });
+  }
 });
-
 router.delete('/:id', async (req, res) => {
-  // TODO (student): Implement DELETE operation for one post.
-  // Suggested steps:
-  // 1) Keep ObjectId validation for req.params.id.
-  // 2) Delete the post using Post.findByIdAndDelete().
-  // 3) Return 404 if no post exists with this id.
-  // 4) Return a success JSON message when deletion succeeds.
-  // 5) Return 500 for unexpected server errors.
-  if (!isValidObjectId(req.params.id)) {
+   if (!isValidObjectId(req.params.id)) {
     return res.status(400).json({ error: 'Invalid post id' });
   }
-
-  return res.status(501).json({ message: 'TODO: implement DELETE /api/posts/:id' });
+  try {
+    const deletedPost = await Post.findByIdAndDelete(req.params.id);
+    if (!deletedPost) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+    return res.status(200).json({
+      message: 'Post deleted successfully',
+      deletedPost,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: 'Server error' });
+  }
 });
 
 module.exports = router;

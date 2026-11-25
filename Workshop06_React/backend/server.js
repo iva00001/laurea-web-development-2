@@ -3,33 +3,28 @@ const express = require('express');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-const pagesRouter = require('./routes/posts.js'); 
+const pagesRouter = require('./routes/pages.js');
 const postsRouter = require('./models/Post.js');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const publicDir = path.join(__dirname, 'public');
 
-
-const mongoose = require('mongoose');
-
 async function connectToDatabase() {
   if (!process.env.MONGODB_URI) {
-    console.warn("MONGODB_URI is missing. Create a .env file in backend/ before testing database features.");
-    return; //
+    console.warn(
+      'MONGODB_URI is missing. Create a .env file in backend/ before testing database features.'
+    );
+    return;
   }
 
   try {
     await mongoose.connect(process.env.MONGODB_URI, { dbName: 'blog' });
-    console.log("Connected to MongoDB");
+    console.log('Connected to MongoDB');
   } catch (error) {
     console.error(`MongoDB connection error: ${error.message}`);
+    throw error; //
   }
-}
-
-async function connectToDatabase() {
-  // Your code here
-  throw new Error('connectToDatabase not implemented. See TODO above.')
 }
 
 app.locals.publicDir = publicDir;

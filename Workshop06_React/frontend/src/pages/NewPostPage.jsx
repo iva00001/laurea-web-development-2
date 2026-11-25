@@ -2,25 +2,46 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import PostForm from '../components/PostForm.jsx'
 
-// TODO (student): Implement create flow (POST /api/posts).
-// Suggested steps:
-// 1) Read form values in handleSubmit.
-// 2) POST JSON body to /api/posts.
-// 3) On success, navigate to /posts/:id.
-// 4) Show an error message on failure.
 function NewPostPage() {
   const navigate = useNavigate()
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
 
+  // Handle form submission to create a new post
   async function handleSubmit(e) {
     e.preventDefault()
     setSubmitting(true)
     setError(null)
 
-    // TODO (student): Implement this submit logic.
-    setError('TODO: implement POST /api/posts in NewPostPage')
-    setSubmitting(false)
+    try {
+      // 1. Extract form values (using currentTarget is safer in React)
+      const formData = new FormData(e.currentTarget) 
+      const newPostData = Object.fromEntries(formData.entries())
+
+      // 2. POST JSON body to /api/posts
+      const response = await fetch('http://localhost:3000/api/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newPostData),
+      })
+
+      if (!response.ok) {
+        // If server returns validation errors, read the message
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create post')
+      }
+
+      // 3. On success, navigate to the new post's page
+      const createdPost = await response.json()
+      navigate(`/posts/${createdPost._id}`)
+    } catch (err) {
+      // 4. Show an error message on failure
+      setError(err.message)
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (

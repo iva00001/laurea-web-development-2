@@ -2,12 +2,26 @@ const mongoose = require('mongoose');
 
 const postSchema = new mongoose.Schema(
   {
-    // TODO: Add title field with String type, required validation, trim, and minlength
-    // TODO: Add content field with String type, required validation, trim, and minlength
-    // TODO: Add author field with String type, required validation, and trim
+    title: {
+      type: String,
+      required: [true, 'Title is required'],
+      trim: true,
+      minlength: [3, 'Title must be at least 3 characters long'],
+    },
+    content: {
+      type: String,
+      required: [true, 'Content is required'],
+      trim: true,
+      minlength: [10, 'Content must be at least 10 characters long'],
+    },
+    author: {
+      type: String,
+      required: [true, 'Author is required'],
+      trim: true,
+    }
   },
   {
-    // TODO: Enable timestamps to track creation and update times
+    timestamps: true,
   }
 );
 

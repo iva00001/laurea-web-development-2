@@ -2,12 +2,6 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import PostForm from '../components/PostForm.jsx'
 
-// TODO (student): Implement edit flow.
-// Suggested steps:
-// 1) Fetch existing post with GET /api/posts/:id.
-// 2) Pass fetched data to PostForm as initialData.
-// 3) On submit, send PUT /api/posts/:id.
-// 4) Navigate back to /posts/:id after successful save.
 function EditPostPage() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -17,29 +11,74 @@ function EditPostPage() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
 
+  // 1. Fetch the existing post when the page loads
   useEffect(() => {
-    // TODO (student): Replace this placeholder with GET /api/posts/:id fetch logic.
-    setLoading(false)
+    async function fetchPost() {
+      try {
+        setLoading(true)
+        setError(null)
+        
+        const response = await fetch(`http://localhost:3000/api/posts/${id}`)
+        if (!response.ok) {
+          throw new Error('Failed to fetch post')
+        }
+        
+        const data = await response.json()
+        setPost(data)
+      } catch (err) {
+        setError(err.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchPost()
   }, [id])
 
+  // 2. Send the updated data to the server when the form is submitted
   async function handleSubmit(e) {
     e.preventDefault()
     setSubmitting(true)
     setError(null)
 
-    // TODO (student): Implement PUT /api/posts/:id.
-    setError('TODO: implement PUT /api/posts/:id in EditPostPage')
-    setSubmitting(false)
+    try {
+      // Extract data from the form (using currentTarget is safer in React)
+      const formData = new FormData(e.currentTarget) // <-- ИЗМЕНЕНО ЗДЕСЬ
+      const updatedData = Object.fromEntries(formData.entries())
+
+      const response = await fetch(`http://localhost:3000/api/posts/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedData),
+      })
+
+      if (!response.ok) {
+        // If the server returns an error (e.g., text is too short), read the message
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to update post')
+      }
+
+      // 3. If successful, navigate back to the post's view page
+      navigate(`/posts/${id}`)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   if (loading) return <p className="status-msg">Loading…</p>
   if (error && !post) return <p className="status-msg error">{error}</p>
-  if (!post) return <p className="status-msg">TODO: Load a post before editing.</p>
+  if (!post) return <p className="status-msg">Post not found.</p>
 
   return (
     <div>
       <h1 className="page-title">Edit post</h1>
       {error && <p className="status-msg error">{error}</p>}
+      
+      {/* Pass the fetched post data into the form */}
       <PostForm
         key={post._id}
         initialData={post}
